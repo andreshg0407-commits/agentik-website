@@ -1,103 +1,137 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { content } from './content';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [sending, setSending] = useState(false);
+  const [ok, setOk] = useState<null | boolean>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <main>
+      {/* HERO sin video: usa poster.jpg como fondo */}
+      <section className="hero" id="home" style={{
+        background: "url('/poster.jpg') center / cover no-repeat",
+        position: 'relative',
+        minHeight: '88vh'
+      }}>
+        {/* Velo sutil para legibilidad sobre la foto */}
+        <div style={{
+          position:'absolute', inset:0, background:'linear-gradient(180deg, rgba(0,0,0,.38), rgba(0,0,0,.18) 40%, rgba(0,0,0,0))'
+        }} />
+
+        <div className="heroOverlay" style={{ position:'relative', zIndex:1 }}>
+          <h1>{content.hero.title}</h1>
+          <p>{content.hero.sub}</p>
+
+          {/* FORMULARIO → /api/lead (FormData, sin recargar) */}
+          <form
+            className="leadForm"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget as HTMLFormElement;
+              const fd = new FormData(form);
+              setSending(true);
+              setOk(null);
+              try {
+                const res = await fetch('/api/lead', { method: 'POST', body: fd, cache: 'no-store' });
+                if (res.ok) {
+                  setOk(true);
+                  form.reset();
+                } else {
+                  setOk(false);
+                }
+              } catch {
+                setOk(false);
+              } finally {
+                setSending(false);
+              }
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <input name="email" type="email" placeholder={content.form.fields.email} required />
+            <input name="whatsapp" placeholder={content.form.fields.whatsapp} />
+
+            <label htmlFor="interest" className="formLabel">¿Qué te gustaría automatizar?</label>
+            <select id="interest" name="interest" defaultValue="">
+              <option value="" disabled>Selecciona una opción…</option>
+              {content.form.fields.options.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+
+            <input name="other" placeholder={content.form.fields.otherHint} />
+
+            {/* Meta / anti-spam */}
+            <input type="hidden" name="source" value="agentickers.com" />
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} />
+
+            <button type="submit" disabled={sending}>
+              {sending ? 'Enviando…' : content.form.cta}
+            </button>
+
+            {ok === true && (
+              <p className="mini" style={{ color: 'limegreen', marginTop: 8 }}>
+                ✅ Gracias, te avisaremos pronto.
+              </p>
+            )}
+            {ok === false && (
+              <p className="mini" style={{ color: 'tomato', marginTop: 8 }}>
+                Hubo un problema al enviar el formulario. Intenta de nuevo.
+              </p>
+            )}
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      {/* VALUE BAR */}
+      <section className="section valueBar" id="valor">
+        <ul className="grid">
+          {content.valueBar.map((v) => (
+            <li key={v.title}>
+              <strong>{v.title}</strong><br />{v.text}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* CÓMO FUNCIONA */}
+      <section className="section" id="como-funciona">
+        <h2>Cómo funciona</h2>
+        <ol className="steps">
+          {content.how.map((s, i) => <li key={i}>{s}</li>)}
+        </ol>
+      </section>
+
+      {/* POR QUÉ */}
+      <section className="section" id="por-que">
+        <h2>Por qué Agentik</h2>
+        <ul className="grid">
+          {content.why.map((w) => (
+            <li key={w.title}>
+              <strong>{w.title}</strong><br />{w.text}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* FAQ */}
+      <section className="section" id="faq">
+        <h2>FAQ</h2>
+        <div className="faq">
+          {content.faq.map((f, i) => (
+            <details key={i}>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="section" id="contacto">
+        <h2>{content.form.title}</h2>
+        <a className="ctaGhost" href="#home">{content.form.cta}</a>
+      </section>
+    </main>
   );
 }

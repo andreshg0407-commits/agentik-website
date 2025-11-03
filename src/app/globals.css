@@ -1,26 +1,198 @@
-@import "tailwindcss";
-
+/* ==========================================================================
+   0) VARIABLES BASE / RESET LIGERO
+   ========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colores */
+  --bg: #ffffff;
+  --fg: #0b1220;
+  --muted: #667085;
+  --brand: #0b6bff;
+
+  /* Layout seguro iOS */
+  --safe-top: env(safe-area-inset-top, 0px);
+
+  /* Altura del header (ajustamos en móvil en media-query) */
+  --nav-h: 56px;
+
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Reset mínimo y tipografía del sistema */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--fg);
+  background: var(--bg);
+  overflow-x: hidden;                 /* evita scroll lateral */
+  padding-top: calc(var(--nav-h) + var(--safe-top)); /* compensa header fijo */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ==========================================================================
+   1) NAVEGACIÓN (DESKTOP + MÓVIL)
+   - Header fijo para estabilidad en iOS
+   - Móvil: dos pisos (marca + links desplazables)
+   ========================================================================== */
+.nav {
+  position: fixed;                    /* fijo (no sticky) -> evita “huecos” en iOS */
+  inset: 0 0 auto 0;                  /* top:0; left/right:0 */
+  height: calc(var(--nav-h) + var(--safe-top));
+  padding: calc(8px + var(--safe-top)) 16px 8px;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, white 85%, transparent);
+  border-bottom: 1px solid #eef0f2;
+}
+.nav .brand { font-weight: 800; text-decoration: none; color: var(--fg); }
+.nav nav a { margin-left: 16px; color: var(--fg); text-decoration: none; opacity: .9; }
+.nav nav a:hover { opacity: 1; }
+
+/* ========= MÓVIL (≤640px) ========= */
+@media (max-width: 640px) {
+  :root { --nav-h: 88px; }
+
+  .nav {
+    flex-direction: column;           /* marca arriba, links abajo */
+    align-items: flex-start;
+    gap: 6px;
+    padding-bottom: 10px;
+  }
+  .nav nav {
+    width: 100%;
+    display: flex; gap: 14px;
+    overflow-x: auto;                 /* scroll horizontal si no cabe */
+    white-space: nowrap;              /* evita saltos de línea */
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav nav::-webkit-scrollbar { display: none; }
+  .nav nav a { font-size: 14px; line-height: 1; padding: 4px 0; flex: 0 0 auto; }
+
+  /* degradado sutil al borde derecho para indicar que hay más */
+  .nav nav::after {
+    content: ""; position: sticky; right: 0; width: 24px; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.92));
+    pointer-events: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   2) HERO (HOME) — Fondo con poster.jpg + overlay de legibilidad
+   ========================================================================== */
+.hero {
+  position: relative;
+  /* usar svh (small viewport height) para iOS y fallback vh */
+  min-height: calc(100svh - var(--nav-h) - var(--safe-top));
+  min-height: calc(100vh  - var(--nav-h) - var(--safe-top));
+  background: url('/poster.jpg') center / cover no-repeat;
+  overflow: hidden;
 }
+.heroOverlay { position: relative; z-index: 1; padding: 20vh 6vw 12vh; max-width: 1100px; }
+.heroOverlay h1 { font-size: clamp(32px, 6vw, 64px); line-height: 1.05; margin: 0 0 12px; letter-spacing: -0.02em; color: #0c1729; text-shadow: 0 2px 8px rgba(255,255,255,.3); }
+.heroOverlay p  { font-size: clamp(16px, 2.2vw, 20px); margin: 0 0 24px; max-width: 720px; color: #243041; opacity: .92; }
+
+/* Velo sutil por si el poster es muy claro/oscuro (opcional) */
+.hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.10) 40%, rgba(255,255,255,0));
+  z-index: 0;
+}
+
+/* ==========================================================================
+   3) FORMULARIO (hero)
+   ========================================================================== */
+.leadForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 12px 0 6px;
+}
+.leadForm input, .leadForm select {
+  padding: 12px 14px;
+  border: 1px solid #dde1e6;
+  border-radius: 10px;
+  background: #fff;
+  color: #0b1220;
+}
+.formLabel {
+  grid-column: 1 / -1;
+  font-size: 14px; font-weight: 500; color: var(--fg);
+  margin: 2px 0 -4px 2px;
+}
+.leadForm button {
+  padding: 12px 16px; border: 0; border-radius: 10px;
+  background: var(--brand); color: #fff; font-weight: 700; cursor: pointer;
+}
+.leadForm button[disabled] { opacity: .7; cursor: default; }
+.mini { font-size: 12px; color: var(--muted); }
+
+/* ==========================================================================
+   4) SECCIONES / CONTENIDO
+   ========================================================================== */
+.section { padding: 72px 6vw; background: #fff; }
+.section h2 { font-size: clamp(24px, 3.2vw, 40px); margin: 0 0 16px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat( auto-fit, minmax(240px, 1fr) );
+  gap: 16px; padding: 0; list-style: none;
+}
+.grid li {
+  background: #fff; border: 1px solid #eaeef5; border-radius: 12px; padding: 14px;
+}
+
+.steps { counter-reset: s; padding-left: 0; margin: 0; }
+.steps li { list-style: none; margin-bottom: 10px; }
+.steps li::before { counter-increment: s; content: counter(s) ". "; font-weight: 700; color: var(--brand); margin-right: 6px; }
+
+.footer { padding: 40px 6vw; border-top: 1px solid #eef0f2; color: var(--muted); background: #fff; }
+
+/* ==========================================================================
+   5) OVERLAYS — Splash de transiciones y Intro
+   ========================================================================== */
+/* Splash (cambios de ruta): usa logo-anim.mp4 en RouteSplash */
+.splash {
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(6px);
+  z-index: 9999;                           /* debajo del Intro (10000) */
+}
+.splashLogoVideo { width: min(200px, 42vw); height: auto; }
+
+/* IntroOverlay: video a pantalla completa, fuera del flujo */
+.introOverlay {
+  position: fixed; inset: 0;
+  z-index: 10000;                           /* por encima de todo */
+  display: grid; place-items: center;
+  background: #000;                          /* cambia a #fff si tu intro lo requiere */
+  pointer-events: none;                      /* no bloquea scroll/clicks del layout */
+}
+.introVideo { width: 100%; height: 100%; object-fit: cover; }
+.introSkip {
+  position: absolute; right: 18px; bottom: 18px;
+  padding: 10px 14px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(0,0,0,.35);
+  color: #fff; backdrop-filter: blur(6px);
+  font-weight: 600; cursor: pointer;
+  pointer-events: auto;                      /* el botón sí recibe clicks */
+}
+
+/* ==========================================================================
+   6) ACCESIBILIDAD / REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .splash { backdrop-filter: none; }
+  .introOverlay, .splash { animation: none !important; }
+}
+
+/* ==========================================================================
+   7) UTILIDADES MÍNIMAS (si las necesitas)
+   ========================================================================== */
+/* Ocultar scrollbars en contenedores horizontales (iOS/Chrome) */
+.hide-scroll::-webkit-scrollbar { display: none; }
+.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }

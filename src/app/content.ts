@@ -32,9 +32,9 @@ export const content = {
   ],
   how: [
     'Sube ideas/fotos a una carpeta de Drive.',
-    'n8n ejecuta IA: genera video vertical + copy.',
+    'Nuestra IA: genera video vertical + copy.',
     'Apruebas rápido desde un enlace.',
-    'Se publica en TikTok (IG/YT en cuanto haya permisos).',
+    'Se publica en TikTok (IG/YT en cuanto otorgues permisos).',
     'Tus leads llegan a CRM/Sheets con fuente y consentimiento.',
   ],
   form: {

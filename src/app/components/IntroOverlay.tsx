@@ -1,86 +1,60 @@
-'use client';
-import { useEffect, useRef, useState } from 'react';
+'use client'
 
-const INTRO_KEY = 'agentik:intro:seen';      // sessionStorage: solo 1 vez por sesión
-const INTRO_MIN_MS = 1600;                   // duración mínima visible (ajústalo)
-const INTRO_MAX_MS = 6000;                   // seguridad por si el video no emite 'ended'
+import { useEffect, useRef, useState } from 'react'
 
 export default function IntroOverlay() {
-  const [show, setShow] = useState(false);
-  const [canHide, setCanHide] = useState(false);
-  const vref = useRef<HTMLVideoElement>(null);
-  const startRef = useRef<number>(0);
-  const timerRef = useRef<number | null>(null);
+  const [show, setShow] = useState(false)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
-    // Si ya se vio, nunca mostrar
-    if (sessionStorage.getItem(INTRO_KEY)) return;
+    if (typeof window === 'undefined') return
+    const seen = sessionStorage.getItem('introSeen')
+    if (!seen) {
+      setShow(true)
+      sessionStorage.setItem('introSeen', '1')
+    }
+  }, [])
 
-    sessionStorage.setItem(INTRO_KEY, '1');
-    setShow(true);
-    startRef.current = Date.now();
-
-    const v = vref.current;
-    if (!v) return;
-
-    const onLoaded = () => {
-      // Autoplay en iOS requiere muted + playsInline (ya están en el JSX)
-      v.play().catch(() => {});
-    };
-    const onEnded = () => {
-      // Solo ocultar si ya pasó el mínimo
-      const elapsed = Date.now() - startRef.current;
-      if (elapsed >= INTRO_MIN_MS) setShow(false);
-      else {
-        // espera al mínimo
-        setTimeout(() => setShow(false), INTRO_MIN_MS - elapsed);
-      }
-    };
-
-    v.addEventListener('loadeddata', onLoaded);
-    v.addEventListener('canplay', onLoaded);
-    v.addEventListener('ended', onEnded);
-
-    // Falla segura: oculta aunque no termine (por si tarda en cargar)
-    timerRef.current = window.setTimeout(() => setCanHide(true), INTRO_MIN_MS);
-    const killMax = window.setTimeout(() => setShow(false), INTRO_MAX_MS);
+  // 🔥 Controla el padding del body de forma ABSOLUTA
+  useEffect(() => {
+    if (show) {
+      document.body.style.paddingTop = "0px"     // 🔥 Esto elimina la franja sí o sí
+    } else {
+      document.body.style.paddingTop = ""         // vuelve al CSS normal
+    }
 
     return () => {
-      v.removeEventListener('loadeddata', onLoaded);
-      v.removeEventListener('canplay', onLoaded);
-      v.removeEventListener('ended', onEnded);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      clearTimeout(killMax);
-    };
-  }, []);
+      document.body.style.paddingTop = ""
+    }
+  }, [show])
 
-  if (!show) return null;
+  const onEnded = () => setShow(false)
+
+  if (!show) return null
 
   return (
-    <div className="introOverlay" aria-hidden="true">
+    <div className="intro-overlay" aria-hidden="true">
       <video
-        ref={vref}
-        className="introVideo"
+        ref={videoRef}
         autoPlay
         muted
         playsInline
         preload="auto"
+        onEnded={onEnded}
+        className="intro-video"
       >
-        {/* Desktop y mobile */}
-        <source src="/intro-desktop.mp4" media="(min-width: 768px)" type="video/mp4" />
         <source src="/intro-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+        <source src="/intro-desktop.mp4" media="(min-width: 768px)" type="video/mp4" />
+        Tu navegador no puede reproducir el video de introducción.
       </video>
 
-      {/* Botón para saltar (opcional) */}
       <button
-        className="introSkip"
+        className="intro-skip"
         onClick={() => setShow(false)}
-        disabled={!canHide}
         aria-label="Saltar introducción"
-        title={canHide ? 'Entrar' : 'Cargando…'}
       >
-        {canHide ? 'Entrar' : '…'}
+        Entrar
       </button>
     </div>
-  );
+  )
 }

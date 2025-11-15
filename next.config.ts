@@ -14,16 +14,11 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
 
-  // Opcional: mantiene buen desempeño con Turbopack en dev/build.
-  experimental: {
-    turbo: {},
-  },
-
   // Cachea fuerte tus estáticos (videos, imágenes, iconos) en CDN/navegador.
   async headers() {
     return [
       {
-        source: '/:all*\\.(?:mp4|webm|jpg|jpeg|png|gif|svg|ico|txt|xml|webmanifest)$',
+        source: '/:all*\\.(mp4|webm|jpg|jpeg|png|gif|svg|ico|txt|xml|webmanifest)$',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],

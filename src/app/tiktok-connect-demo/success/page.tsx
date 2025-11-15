@@ -1,4 +1,4 @@
-// app/tiktok-connect-demo/success/page.tsx
+// src/app/tiktok-connect-demo/success/page.tsx
 import Link from 'next/link'
 
 export default function TiktokSuccessPage() {
@@ -10,6 +10,8 @@ export default function TiktokSuccessPage() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '2rem',
+        background: '#050816',
+        color: '#ffffff',
       }}
     >
       <section
@@ -17,11 +19,10 @@ export default function TiktokSuccessPage() {
           maxWidth: '640px',
           width: '100%',
           borderRadius: '16px',
-          border: '1px solid rgba(255,255,255,0.12)',
+          border: '1px solid rgba(255,255,255,0.2)',
           padding: '2.5rem',
-          boxShadow: '0 18px 45px rgba(0,0,0,0.35)',
-          background:
-            'radial-gradient(circle at top, #25f4ee33, transparent 55%), #050816',
+          boxShadow: '0 18px 45px rgba(0,0,0,0.6)',
+          background: '#0b1020',
         }}
       >
         <h1
@@ -29,6 +30,7 @@ export default function TiktokSuccessPage() {
             fontSize: '2rem',
             marginBottom: '0.75rem',
             fontWeight: 700,
+            color: '#ffffff',
           }}
         >
           Tu video se ha publicado exitosamente en TikTok
@@ -39,6 +41,7 @@ export default function TiktokSuccessPage() {
             opacity: 0.9,
             marginBottom: '1.5rem',
             lineHeight: 1.5,
+            color: '#e2e8f0',
           }}
         >
           Agentik usó la API oficial de TikTok para subir el video al perfil que
@@ -49,7 +52,7 @@ export default function TiktokSuccessPage() {
         <div
           style={{
             borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.2)',
+            border: '1px solid rgba(255,255,255,0.3)',
             padding: '1rem',
             marginBottom: '1.5rem',
           }}
@@ -70,7 +73,7 @@ export default function TiktokSuccessPage() {
               opacity: 0.9,
             }}
           >
-            Video AI generado · Publicado desde Agentik
+            Video con IA · Publicado desde Agentik
           </div>
         </div>
 

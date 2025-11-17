@@ -1,33 +1,34 @@
 // next.config.ts
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
-  // No bloquea compilaciones por reglas de ESLint en Vercel/CI.
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Antes aquí estaba "eslint: { ignoreDuringBuilds: true }"
+  // En Next 15+ con la nueva config eso ya no existe en el tipo,
+  // por eso TypeScript se quejaba.
 
-  // Evita el loader de imágenes; útil si todo está en /public o si no usarás next/image.
   images: {
     unoptimized: true,
   },
 
-  // Cachea fuerte tus estáticos (videos, imágenes, iconos) en CDN/navegador.
   async headers() {
     return [
       {
-        source: '/:all*\\.(mp4|webm|jpg|jpeg|png|gif|svg|ico|txt|xml|webmanifest)$',
+        source:
+          '/:all*\\.(mp4|webm|jpg|jpeg|png|gif|svg|ico|txt|xml|webmanifest)$',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
-    ];
+    ]
   },
 
-  // Si en algún momento tienes rutas dinámicas que tarden, puedes subir el timeout:
+  // Si tenías esto, puedes dejarlo si lo quieres:
   // staticPageGenerationTimeout: 120,
-};
+}
 
-export default nextConfig;
+export default nextConfig
